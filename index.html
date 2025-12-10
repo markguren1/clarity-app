@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clarity – From Prompts to Agent-Ready AI</title>
+  <meta name="description" content="The clarity engine for AI. Structure your thoughts for today's models, prepare for tomorrow's autonomous agents." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Google Analytics - REPLACE WITH YOUR TRACKING ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX'); // REPLACE THIS
+  </script>
+  
+  <style>
+    :root {
+      --navy: #0f172a;
+      --charcoal: #1e293b;
+      --teal: #00bcd4;
+      --orange: #ff7b00;
+      --light-bg: #f8fafc;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--light-bg); color: var(--navy); }
+    .gradient-primary { background: linear-gradient(135deg, var(--navy), var(--teal)); }
+    .gradient-secondary { background: linear-gradient(135deg, var(--orange), var(--teal)); }
+    .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.6; pointer-events: none; }
+    .orb-a { width: 520px; height: 520px; background: linear-gradient(135deg, var(--teal), var(--navy)); top: -200px; left: -150px; }
+    .orb-b { width: 420px; height: 420px; background: linear-gradient(135deg, var(--orange), #475569); bottom: -180px; right: -120px; }
+    .prompt-box { @apply font-mono text-sm bg-gray-50 border-l-4 border-teal-500 p-4 rounded-r-lg whitespace-pre-wrap; }
+    .clarity-score { @apply text-5xl font-black; background: linear-gradient(135deg, var(--teal), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .countdown { @apply font-bold text-orange-600; }
+    .template-card { @apply bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-teal-500 cursor-pointer transition-all duration-200; }
+    .template-card:hover { @apply shadow-lg transform scale-[1.02]; }
+    .step-indicator { @apply w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm; }
+    .step-active { @apply bg-gradient-to-r from-teal-500 to-orange-500 text-white; }
+    .step-inactive { @apply bg-gray-200 text-gray-500; }
+    .step-complete { @apply bg-green-500 text-white; }
+    .badge { @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold; }
+    .badge-pro { @apply bg-orange-100 text-orange-700; }
+    .badge-new { @apply bg-green-100 text-green-700; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- NAV -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-lg border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center text-white font-black text-lg shadow-lg">C</div>
+        <div>
+          <a href="#" class="text-xl font-bold">Clarity</a>
+          <p class="text-xs text-gray-500">AI → Agents</p>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <a href="#proof" class="hover:text-teal-600 transition">Proof</a>
+        <a href="#features" class="hover:text-teal-600 transition">Features</a>
+        <a href="#builder" class="hover:text-teal-600 transition">Builder</a>
+        <a href="#pricing" class="hover:text-teal-600 transition">Pricing</a>
+        <button onclick="scrollToSignup()" class="px-5 py-2.5 rounded-full gradient-secondary text-white font-bold shadow-lg hover:scale-105 transition">Start Free Beta</button>
+      </nav>
+      <button id="mobile-menu-btn" class="md:hidden p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative overflow-hidden py-20">
+    <div class="orb orb-a hidden lg:block"></div>
+    <div class="orb orb-b hidden lg:block"></div>
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <div class="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-bold mb-6">
+        <span class="animate-pulse">⚡</span> Limited Beta • <span id="countdown-hero" class="countdown"></span>
+      </div>
+      <h1 class="text-5xl md:text-7xl font-black leading-tight">
+        Stop Prompting.<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-orange-500">Start Building Clarity.</span>
+      </h1>
+      <p class="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
+        Prompts are temporary. Clarity is permanent.<br>
+        Structure your AI instructions today. Command autonomous agents tomorrow.
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row gap-6 justify-center items-center">
+        <button onclick="scrollToBuilder()" class="px-10 py-5 rounded-full gradient-secondary text-white font-bold text-lg shadow-xl hover:scale-105 transition flex items-center gap-3">
+          Start Building Now (Free Beta)
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </button>
+        <a href="#proof" class="text-lg underline hover:text-teal-600 transition">See 3-Era Comparison →</a>
+      </div>
+      
+      <!-- Social Proof -->
+      <div class="mt-16 flex flex-wrap justify-center items-center gap-8 text-sm text-gray-500">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <span>4.9/5 from beta users</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span id="prompts-today">2,847 prompts generated today</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+          <span>Free until Feb 19, 2026</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3-ERA COMPARISON -->
+  <section id="proof" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl md:text-5xl font-black mb-4">The Proof: 3 Eras, 1 Tool</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">See how the same task evolves from basic prompting to agent-ready clarity</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8 text-left">
+        <!-- 1. Classic Prompting -->
+        <div class="bg-gray-50 rounded-2xl shadow-xl p-8 border-l-8 border-gray-400">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-black text-gray-600">2023–2025<br>Prompt Engineering</h3>
+            <span class="text-4xl">📝</span>
+          </div>
+          <pre class="prompt-box border-gray-400 bg-white">Write a 3-step rollback plan for a failing feature.</pre>
+          <div class="mt-6 p-4 bg-white rounded-lg border-2 border-red-200">
+            <p class="text-xs font-bold text-red-600 mb-2">AI Output (Generic):</p>
+            <p class="text-sm text-gray-600">1. Stop deployment<br>2. Notify stakeholders<br>3. Revert code</p>
+          </div>
+          <div class="mt-4 flex items-center gap-2 text-sm text-gray-500">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            High variance • Needs 3-5 revisions
+          </div>
+        </div>
+
+        <!-- 2. Clarity Era (Current) -->
+        <div class="bg-teal-50 rounded-2xl shadow-xl p-8 border-l-8 border-teal-500 ring-4 ring-teal-100 relative">
+          <span class="absolute -top-3 right-4 px-3 py-1 bg-teal-600 text-white text-xs font-bold rounded-full">YOU ARE HERE</span>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-black text-teal-600">2025–2027<br>Clarity Engineering</h3>
+            <span class="text-4xl">🎯</span>
+          </div>
+          <pre class="prompt-box text-xs">GOAL: Construct robust rollback plan
+PERSONA: Senior Product Manager
+TASK: Generate 3-step feature rollback
+OUTPUT_FORMAT: Multi-level Markdown
+CONSTRAINTS: Risk Score + Mitigation per step
+BEGIN GENERATION NOW.</pre>
+          <div class="mt-6 p-4 bg-white rounded-lg border-2 border-green-200">
+            <p class="text-xs font-bold text-green-600 mb-2">AI Output (Actionable):</p>
+            <p class="text-sm text-gray-600">1. <strong>Execute Code Reversion</strong><br>
+            - Explanation: Revert to SHA b4d7f8a<br>
+            - Risk Score: 8/10<br>
+            - Mitigation: DB snapshot 5min prior</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between">
+            <div class="text-left">
+              <p class="text-xs text-gray-500">Clarity Score</p>
+              <p class="clarity-score text-3xl">94</p>
+            </div>
+            <div class="text-right text-sm text-green-600 font-bold">
+              ✓ Production-ready<br>✓ First-try success
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Agentic Future -->
+        <div class="bg-orange-50 rounded-2xl shadow-xl p-8 border-l-8 border-orange-500">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-black text-orange-600">2027+<br>Autonomous Agents</h3>
+            <span class="text-4xl">🤖</span>
+          </div>
+          <pre class="prompt-box border-orange-500 bg-white text-xs">MISSION: Execute safe rollback with zero downtime
+CONSTRAINTS: 
+  - Financial impact < $50k
+  - Test coverage > 99.9%
+  - Stakeholder notification < 15min
+VERIFY: Post-rollback metrics dashboard
+AUTHORITY: Auto-execute if all constraints met</pre>
+          <div class="mt-6 p-4 bg-white rounded-lg border-2 border-orange-200">
+            <p class="text-xs font-bold text-orange-600 mb-2">Agent Execution:</p>
+            <p class="text-sm text-gray-600">✓ Code reverted (2m 34s)<br>✓ Tests passed (99.97%)<br>✓ Notifications sent<br>✓ Dashboard updated<br>→ Rollback complete</p>
+          </div>
+          <div class="mt-4 text-sm text-orange-600 font-bold">
+            Agent runs end-to-end autonomously
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <p class="text-xl font-bold text-gray-800 mb-4">Start building clarity skills now. Be agent-ready tomorrow.</p>
+        <button onclick="scrollToBuilder()" class="px-8 py-4 rounded-full gradient-secondary text-white font-bold text-lg shadow-xl hover:scale-105 transition">
+          Try the Clarity Builder →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-black mb-4">Why Structure Wins</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">AI models are getting smarter. Your commands need to match their capability.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+          <div class="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center text-white text-2xl mb-4">🎯</div>
+          <h3 class="text-xl font-bold mb-3">Guided Builder</h3>
+          <p class="text-gray-600">Step-by-step wizard transforms any concept into production-grade prompts</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+          <div class="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center text-white text-2xl mb-4">🔄</div>
+          <h3 class="text-xl font-bold mb-3">Reverse Engineer</h3>
+          <p class="text-gray-600">Paste raw prompts to extract Persona, Goal, Tone, and Constraints automatically</p>
+          <span class="badge badge-new mt-2">New</span>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+          <div class="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center text-white text-2xl mb-4">📊</div>
+          <h3 class="text-xl font-bold mb-3">Clarity Score</h3>
+          <p class="text-gray-600">Real-time feedback validates prompt strength before you deploy to production</p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+          <div class="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center text-white text-2xl mb-4">📚</div>
+          <h3 class="text-xl font-bold mb-3">Template Library</h3>
+          <p class="text-gray-600">Battle-tested patterns for strategy, code, reports, and agent briefings</p>
+          <span class="badge badge-pro mt-2">Pro</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILDER -->
+  <section id="builder" class="py-20 bg-white">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl md:text-5xl font-black mb-4">Interactive Clarity Builder</h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">3-step flow to create agent-ready prompts that work on ChatGPT, Claude, Gemini, or any AI model</p>
+        <p class="mt-4 text-sm text-gray-500" id="user-status">Loading your account...</p>
+      </div>
+
+      <div id="builder-container" class="bg-white rounded-3xl shadow-2xl p-10 border-2 border-gray-100">
+        
+        <!-- Progress Indicator -->
+        <div class="flex justify-between items-center mb-10">
+          <div class="flex items-center gap-4">
+            <div class="step-indicator step-active" id="indicator-1">1</div>
+            <div class="h-1 w-16 bg-gray-200 rounded"></div>
+            <div class="step-indicator step-inactive" id="indicator-2">2</div>
+            <div class="h-1 w-16 bg-gray-200 rounded"></div>
+            <div class="step-indicator step-inactive" id="indicator-3">3</div>
+          </div>
+          <div class="text-sm text-gray-500" id="step-counter">Step 1 of 3</div>
+        </div>
+
+        <!-- Step 1: Role & Goal -->
+        <div id="step-1" class="space-y-6">
+          <div>
+            <label class="block text-lg font-bold text-gray-800 mb-3">1. What expert role should the AI adopt?</label>
+            <input type="text" id="persona" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 transition text-lg" placeholder="e.g., Senior Product Manager, Backend Engineer, Sales Strategist">
+          </div>
+          <div>
+            <label class="block text-lg font-bold text-gray-800 mb-3">2. What is the ultimate goal?</label>
+            <input type="text" id="goal" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 transition text-lg" placeholder="e.g., Construct a strategy document, Write a pitch email">
+          </div>
+          <button id="next-1" class="w-full py-4 rounded-xl gradient-secondary text-white font-bold text-lg shadow-lg hover:scale-[1.02] transition">
+            Next: Define Task & Tone →
+          </button>
+        </div>
+
+        <!-- Step 2: Task & Tone -->
+        <div id="step-2" class="space-y-6 hidden">
+          <div>
+            <label class="block text-lg font-bold text-gray-800 mb-3">3. Core Task</label>
+            <textarea id="task" rows="3" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 transition text-lg" placeholder="e.g., Generate a 3-step feature rollback plan with risk scores"></textarea>
+          </div>
+          <div>
+            <label class="block text-lg font-bold text-gray-800 mb-3">4. Tone/Style</label>
+            <select id="tone" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 transition text-lg">
+              <option value="">-- Select Tone --</option>
+              <option value="strictly formal and academic">Strictly formal and academic</option>
+              <option value="conversational and friendly">Conversational and friendly</option>
+              <option value="persuasive and high-energy">Persuasive & high-energy (Sales)</option>
+              <option value="technical and objective">Technical & objective (Documentation)</option>
+              <option value="creative and whimsical">Creative & whimsical</option>
+            </select>
+          </div>
+          <div class="flex gap-4">
+            <button id="back-2" class="flex-1 py-4 rounded-xl bg-gray-200 text-gray-700 font-bold text-lg hover:bg-gray-300 transition">
+              ← Back
+            </button>
+            <button id="next-2" class="flex-1 py-4 rounded-xl gradient-secondary text-white font-bold text-lg shadow-lg hover:scale-[1.02] transition">
+              Next: Format & Constraints →
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Format & Constraints -->
+        <div id="step-3" class="space-y-6 hidden">
+          <div>
+            <label class="block text-lg font-bold text-gray-800 mb-3">5. Output Format</label>
+            <select id="format" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 transition text-lg">
+              <option value="">-- Select Format --</option>
+              <option value="markdown_list">Markdown list (bulleted/numbered)</option>
+              <option value="formal_essay">Formal essay structure</option>
+              <option value="code_block">Code block (Python, JSON, etc.)</option>
+              <option value="professional_memo">Professional memo/email</option>
+              <option value="raw_paragraph">Single paragraph</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-lg font-bold text-gray-800 mb-3">6. Constraints (Optional)</label>
+            <textarea id="constraints" rows="2" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 transition text-lg" placeholder="e.g., Each step must include Risk Score (1-10) and Mitigation Strategy"></textarea>
+          </div>
+          <div class="flex gap-4">
+            <button id="back-3" class="flex-1 py-4 rounded-xl bg-gray-200 text-gray-700 font-bold text-lg hover:bg-gray-300 transition">
+              ← Back
+            </button>
+            <button id="generate" class="flex-1 py-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-lg shadow-lg hover:scale-[1.02] transition">
+              Generate Prompt ✨
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Output -->
+        <div id="step-4" class="space-y-6 hidden">
+          <div class="text-center mb-6">
+            <p class="text-sm text-gray-500 mb-2">Your Clarity Score</p>
+            <div class="clarity-score text-6xl" id="clarity-score">--</div>
+            <p class="text-sm text-gray-600 mt-2" id="score-label">Calculating...</p>
+          </div>
+          <div>
+            <label class="block text-lg font-bold text-gray-800 mb-3">🚀 Your Agent-Ready Prompt</label>
+            <pre id="output" class="prompt-box bg-gray-100 text-sm p-6 min-h-[200px] border-l-4 border-teal-500 whitespace-pre-wrap">Your generated prompt will appear here...</pre>
+          </div>
+          <div class="flex gap-4">
+            <button id="copy" class="flex-1 py-4 rounded-xl gradient-primary text-white font-bold text-lg shadow-lg hover:scale-[1.02] transition">
+              📋 Copy Prompt
+            </button>
+            <button id="reset" class="flex-1 py-4 rounded-xl bg-gray-200 text-gray-700 font-bold text-lg hover:bg-gray-300 transition">
+              ↻ Start Over
+            </button>
+          </div>
+        </div>
+
+        <!-- Templates Sidebar -->
+        <div class="mt-10 pt-10 border-t-2 border-gray-100">
+          <h3 class="text-xl font-bold mb-4">Quick Templates</h3>
+          <div class="grid md:grid-cols-3 gap-4">
+            <button class="template-card" data-template="rollback">
+              <p class="font-bold text-sm mb-1">Rollback Plan</p>
+              <p class="text-xs text-gray-500">3-step strategy with risk scores</p>
+            </button>
+            <button class="template-card" data-template="email">
+              <p class="font-bold text-sm mb-1">Pitch Email</p>
+              <p class="text-xs text-gray-500">Cold outreach template</p>
+            </button>
+            <button class="template-card" data-template="rfc">
+              <p class="font-bold text-sm mb-1">Technical RFC</p>
+              <p class="text-xs text-gray-500">Engineering design doc</p>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMAIL SIGNUP SECTION -->
+  <section id="signup" class="py-20 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="bg-white rounded-3xl shadow-2xl p-10 border-2 border-teal-500">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl md:text-4xl font-black mb-4">Get Early Access</h2>
+          <p class="text-lg text-gray-600">Join the beta and start building clarity today</p>
+          <p class="mt-2 text-sm text-gray-500" id="signup-status"></p>
+        </div>
+
+        <!-- Web3Forms Integration - REPLACE access_key -->
+        <form id="email-signup-form" class="space-y-4">
+          <input type="hidden" name="access_key" value="5f63641a-abae-4645-be4b-f91c2338362f">
+          <input type="hidden" name="subject" value="New Clarity Beta Signup">
+          <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+          
+          <div>
+            <input 
+              type="email" 
+              name="email" 
+              id="signup-email" 
+              required
+              class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 transition text-lg" 
+              placeholder="your@email.com"
+            >
+          </div>
+          
+          <button 
+            type="submit" 
+            id="signup-btn"
+            class="w-full py-4 rounded-xl gradient-secondary text-white font-bold text-lg shadow-lg hover:scale-[1.02] transition"
+          >
+            Start Free Beta Access
+          </button>
+          
+          <p class="text-xs text-center text-gray-500">
+            No credit card required • Free until Feb 19, 2026
+          </p>
+        </form>
+        
+        <div id="signup-success" class="hidden text-center">
+          <div class="text-6xl mb-4">🎉</div>
+          <h3 class="text-2xl font-bold text-green-600 mb-2">Welcome to Clarity!</h3>
+          <p class="text-gray-600 mb-6">Check your email for confirmation and start building prompts above.</p>
+          <button onclick="scrollToBuilder()" class="px-8 py-3 rounded-xl gradient-primary text-white font-bold">
+            Start Building Now →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-12 bg-gray-900 text-gray-300">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p class="text-sm mb-4">© 2025 Clarity. Built for engineers who command tomorrow's agents.</p>
+      <p class="text-xs">Questions? Email: <a href="mailto:hello@clarity.ai" class="text-teal-400 hover:underline">hello@clarity.ai</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // ============================================
+    // LOCALSTORAGE USER MANAGEMENT SYSTEM
+    // ============================================
+    
+    const BETA_END_DATE = new Date('2026-02-19T00:00:00Z');
+    const FREE_PROMPT_LIMIT = 30;
+    
+    // Initialize or get user data
+    function initUser() {
+      let user = localStorage.getItem('clarity_user');
+      
+      if (!user) {
+        user = {
+          id: 'user_' + Date.now(),
+          email: null,
+          signupDate: Date.now(),
+          promptsUsed: 0,
+          plan: 'beta',
+          lastVisit: Date.now()
+        };
+        localStorage.setItem('clarity_user', JSON.stringify(user));
+      } else {
+        user = JSON.parse(user);
+        user.lastVisit = Date.now();
+        localStorage.setItem('clarity_user', JSON.stringify(user));
+      }
+      
+      return user;
+    }
+    
+    // Check if user can generate prompts
+    function canGeneratePrompt() {
+      const user = JSON.parse(localStorage.getItem('clarity_user'));
+      const now = new Date();
+      
+      // During beta: unlimited
+      if (now < BETA_END_DATE) {
+        return { allowed: true, reason: 'beta' };
+      }
+      
+      // After beta: check limit
+      if (user.promptsUsed < FREE_PROMPT_LIMIT) {
+        return { allowed: true, reason: 'free', remaining: FREE_PROMPT_LIMIT - user.promptsUsed };
+      }
+      
+      return { allowed: false, reason: 'limit_reached' };
+    }
+    
+    // Track prompt generation
+    function trackPromptGeneration() {
+      const user = JSON.parse(localStorage.getItem('clarity_user'));
+      user.promptsUsed += 1;
+      localStorage.setItem('clarity_user', JSON.stringify(user));
+      
+      // Track in GA4
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'generate_prompt', {
+          'prompts_used': user.promptsUsed,
+          'user_id': user.id
+        });
+      }
+      
+      updateUserStatus();
+    }
+    
+    // Update user status display
+    function updateUserStatus() {
+      const user = JSON.parse(localStorage.getItem('clarity_user'));
+      const statusEl = document.getElementById('user-status');
+      const now = new Date();
+      
+      if (now < BETA_END_DATE) {
+        const daysLeft = Math.ceil((BETA_END_DATE - now) / (1000 * 60 * 60 * 24));
+        statusEl.textContent = `🎉 Beta Access: Unlimited prompts for ${daysLeft} more days`;
+        statusEl.className = 'mt-4 text-sm text-green-600 font-semibold';
+      } else {
+        const remaining = FREE_PROMPT_LIMIT - user.promptsUsed;
+        if (remaining > 0) {
+          statusEl.textContent = `Free Tier: ${remaining} prompts remaining`;
+          statusEl.className = 'mt-4 text-sm text-orange-600 font-semibold';
+        } else {
+          statusEl.textContent = `Free prompts used. Upgrade for unlimited access.`;
+          statusEl.className = 'mt-4 text-sm text-red-600 font-semibold';
+        }
+      }
+    }
+    
+    // Update countdown timer
+    function updateCountdown() {
+      const now = new Date();
+      const diff = BETA_END_DATE - now;
+      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      
+      const countdownEls = document.querySelectorAll('.countdown');
+      countdownEls.forEach(el => {
+        if (days > 0) {
+          el.textContent = `${days} days left`;
+        } else {
+          el.textContent = 'Beta Ended';
+        }
+      });
+    }
+    
+    // ============================================
+    // PROMPT BUILDER LOGIC
+    // ============================================
+    
+    let currentStep = 1;
+    const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+    const indicators = ['indicator-1', 'indicator-2', 'indicator-3'];
+    
+    const FORMAT_MAP = {
+      'markdown_list': 'a detailed, multi-level Markdown list (using nested bullet points/numbering) for clarity.',
+      'formal_essay': 'a standard academic essay structure (Introduction, Body, Conclusion).',
+      'code_block': 'a clean, single code block (e.g., Python, JSON, HTML) without surrounding prose.',
+      'professional_memo': 'a formal business memorandum or professional email.',
+      'raw_paragraph': 'a single, concise, raw paragraph (no formatting).'
+    };
+    
+    function showStep(step) {
+      steps.forEach((id, index) => {
+        document.getElementById(id).classList.toggle('hidden', index + 1 !== step);
+      });
+      
+      indicators.forEach((id, index) => {
+        const indicator = document.getElementById(id);
+        indicator.className = 'step-indicator';
+        if (index + 1 < step) {
+          indicator.classList.add('step-complete');
+        } else if (index + 1 === step) {
+          indicator.classList.add('step-active');
+        } else {
+          indicator.classList.add('step-inactive');
+        }
+      });
+      
+      document.getElementById('step-counter').textContent = step < 4 ? `Step ${step} of 3` : 'Complete!';
+      currentStep = step;
+      
+      // Track step progress
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'builder_step', {
+          'step_number': step
+        });
+      }
+    }
+    
+    function calculateClarityScore(prompt) {
+      let score = 50; // Base score
+      
+      // Check for key components
+      if (prompt.includes('GOAL:')) score += 10;
+      if (prompt.includes('PERSONA:')) score += 10;
+      if (prompt.includes('TASK:')) score += 10;
+      if (prompt.includes('OUTPUT_FORMAT:')) score += 10;
+      if (prompt.includes('CONSTRAINTS:')) score += 10;
+      
+      // Length bonus (structured prompts are usually longer)
+      if (prompt.length > 200) score += 5;
+      if (prompt.length > 300) score += 5;
+      
+      // Formatting bonus
+      if (prompt.includes('**')) score += 5; // Bold formatting
+      if (prompt.split('\n').length > 5) score += 5; // Multi-line
+      
+      return Math.min(100, score);
+    }
+    
+    function generatePrompt() {
+      // Check if user can generate
+      const check = canGeneratePrompt();
+      if (!check.allowed) {
+        alert('You have reached your free prompt limit. Upgrade to continue generating prompts!');
+        return;
+      }
+      
+      const persona = document.getElementById('persona').value.trim();
+      const goal = document.getElementById('goal').value.trim();
+      const task = document.getElementById('task').value.trim();
+      const tone = document.getElementById('tone').value.trim();
+      const formatKey = document.getElementById('format').value.trim();
+      const constraints = document.getElementById('constraints').value.trim();
+      
+      if (!formatKey) {
+        alert('Please select an output format');
+        return;
+      }
+      
+      let prompt = `GOAL: ${goal || 'Produce a high-quality and structured output.'}`;
+      prompt += `\nPERSONA: Act as a **${persona || 'General Expert'}**. The response tone MUST be **${tone || 'neutral'}**.`;
+      prompt += `\nTASK: ${task || 'Generate an appropriate output for the requested task.'}`;
+      prompt += `\nOUTPUT_FORMAT: Structure the entire response as ${FORMAT_MAP[formatKey] || formatKey}.`;
+      if (constraints) prompt += `\nCRITICAL CONSTRAINTS: ${constraints}`;
+      prompt += `\nBEGIN GENERATION NOW.`;
+      
+      document.getElementById('output').textContent = prompt;
+      
+      // Calculate and display clarity score
+      const score = calculateClarityScore(prompt);
+      document.getElementById('clarity-score').textContent = score;
+      
+      let label = '';
+      if (score >= 90) label = '🎯 Excellent - Agent Ready!';
+      else if (score >= 75) label = '✓ Good - Production Quality';
+      else if (score >= 60) label = '⚠ Fair - Consider adding constraints';
+      else label = '❌ Needs improvement';
+      
+      document.getElementById('score-label').textContent = label;
+      
+      // Track generation
+      trackPromptGeneration();
+      
+      showStep(4);
+    }
+    
+    // ============================================
+    // EMAIL SIGNUP HANDLING
+    // ============================================
+    
+    document.getElementById('email-signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('signup-email').value;
+      
+      // Update user data
+      const user = JSON.parse(localStorage.getItem('clarity_user'));
+      user.email = email;
+      localStorage.setItem('clarity_user', JSON.stringify(user));
+      
+      // Track signup
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'signup', {
+          'method': 'email',
+          'user_id': user.id
+        });
+      }
+      
+      try {
+        // Submit to Web3Forms - build form data manually
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            access_key: document.querySelector('input[name="access_key"]').value,
+            email: email,
+            subject: 'New Clarity Beta Signup'
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('email-signup-form').classList.add('hidden');
+          document.getElementById('signup-success').classList.remove('hidden');
+          updateUserStatus();
+        } else {
+          alert('Signup failed. Please try again or email us directly.');
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        alert('Signup failed. Please check your internet connection and try again.');
+      }
+    });
+    
+    // ============================================
+    // NAVIGATION & UI
+    // ============================================
+    
+    function scrollToBuilder() {
+      document.getElementById('builder').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function scrollToSignup() {
+      document.getElementById('signup').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // ============================================
+    // TEMPLATE LOADING
+    // ============================================
+    
+    const templates = {
+      rollback: {
+        persona: 'Senior Product Manager',
+        goal: 'Construct a robust, actionable rollback plan',
+        task: 'Generate a 3-step feature rollback plan for a product failing validation',
+        tone: 'strictly formal and academic',
+        format: 'markdown_list',
+        constraints: 'Each step must include Explanation, Risk Score (1-10), and Mitigation Strategy'
+      },
+      email: {
+        persona: 'Sales Strategist',
+        goal: 'Write a compelling pitch email',
+        task: 'Draft a 150-200 word cold pitch email introducing our AI product',
+        tone: 'persuasive and high-energy',
+        format: 'professional_memo',
+        constraints: 'Include subject line, 3 short paragraphs, and clear call-to-action'
+      },
+      rfc: {
+        persona: 'Technical Lead',
+        goal: 'Draft a technical RFC outline',
+        task: 'Produce a structured RFC with Problem, Proposal, Rollout Plan, and Risks',
+        tone: 'technical and objective',
+        format: 'markdown_list',
+        constraints: 'Limit to 600 words, include timeline estimates'
+      }
+    };
+    
+    document.querySelectorAll('.template-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const templateName = card.dataset.template;
+        const template = templates[templateName];
+        
+        if (template) {
+          document.getElementById('persona').value = template.persona;
+          document.getElementById('goal').value = template.goal;
+          document.getElementById('task').value = template.task;
+          document.getElementById('tone').value = template.tone;
+          document.getElementById('format').value = template.format;
+          document.getElementById('constraints').value = template.constraints;
+          
+          showStep(3);
+          
+          // Track template usage
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'use_template', {
+              'template_name': templateName
+            });
+          }
+        }
+      });
+    });
+    
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    
+    document.getElementById('next-1').addEventListener('click', () => {
+      const persona = document.getElementById('persona').value.trim();
+      const goal = document.getElementById('goal').value.trim();
+      
+      if (!persona || !goal) {
+        alert('Please fill in both fields');
+        return;
+      }
+      
+      showStep(2);
+    });
+    
+    document.getElementById('next-2').addEventListener('click', () => {
+      const task = document.getElementById('task').value.trim();
+      const tone = document.getElementById('tone').value;
+      
+      if (!task || !tone) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      showStep(3);
+    });
+    
+    document.getElementById('back-2').addEventListener('click', () => showStep(1));
+    document.getElementById('back-3').addEventListener('click', () => showStep(2));
+    document.getElementById('generate').addEventListener('click', generatePrompt);
+    
+    document.getElementById('copy').addEventListener('click', async () => {
+      const text = document.getElementById('output').textContent;
+      
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('✓ Prompt copied to clipboard!');
+        
+        // Track copy
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'copy_prompt');
+        }
+      } catch (err) {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('✓ Prompt copied to clipboard!');
+      }
+    });
+    
+    document.getElementById('reset').addEventListener('click', () => {
+      document.getElementById('persona').value = '';
+      document.getElementById('goal').value = '';
+      document.getElementById('task').value = '';
+      document.getElementById('tone').value = '';
+      document.getElementById('format').value = '';
+      document.getElementById('constraints').value = '';
+      showStep(1);
+    });
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      initUser();
+      updateUserStatus();
+      updateCountdown();
+      
+      // Update countdown every hour
+      setInterval(updateCountdown, 3600000);
+      
+      // Check if user came from signup
+      const user = JSON.parse(localStorage.getItem('clarity_user'));
+      if (user.email) {
+        document.getElementById('signup-status').textContent = `✓ Signed in as ${user.email}`;
+      }
+    });
+  </script>
+</body>
+</html>
